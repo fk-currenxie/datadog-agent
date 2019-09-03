@@ -61,6 +61,7 @@ variables:
   RELEASE_VERSION: nightly
   DATADOG_AGENT_BUILDIMAGES: v1631023-f2ae59b
   DATADOG_AGENT_BUILDERS: v1613952-f072482
+  DATADOG_AGENT_WINBUILDIMAGES: v1713877-3fc394d
 
 
 # Default before_script for all the jobs. If you create a new job and don't want this to execute
@@ -499,6 +500,37 @@ build_windows_msi_x64:
     expire_in: 2 weeks
     paths:
       - .omnibus/pkg
+
+dockerbuild_windows_msi_x64:
+  before_script:
+    - echo "skipping default before script"
+  stage: package_build
+  variables:
+    WINDOWS_BUILDER: 'true'
+    CREDENTIALS_FILE_PATH: 'c:\users\gitlab\.aws\config'
+  tags: ["runner:windows-docker"]
+  script:
+    - docker run --rm -m 4096M -v "$(Get-Location):c:\mnt" -e IS_AWS_CONTAINER=true -e SIGN_WINDOWS=true 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/windows_x64:$Env:DATADOG_AGENT_WINBUILDIMAGES \build-agent6.bat --release-version %RELEASE_VERSION%
+  artifacts:
+    expire_in: 2 weeks
+    paths:
+      - build-out/
+
+dockerbuild_windows_msi_x86:
+  before_script:
+    - "echo skipping default before script"
+  stage: package_build
+  variables:
+    WINDOWS_BUILDER: 'true'
+    CREDENTIALS_FILE_PATH: 'c:\users\gitlab\.aws\config'
+  tags: ["runner:windows-docker"]
+  script:
+    - docker run --rm -m 4096M -v "$(Get-Location):c:\mnt" -e IS_AWS_CONTAINER=true -e SIGN_WINDOWS=true 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/windows_x86:$Env:DATADOG_AGENT_WINBUILDIMAGES \build-agent6.bat --release-version %RELEASE_VERSION%
+  artifacts:
+    expire_in: 2 weeks
+    paths:
+      - build-out/
+
 
 # build Agent package for android
 agent_android_apk:
