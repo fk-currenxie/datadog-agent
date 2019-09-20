@@ -61,7 +61,7 @@ variables:
   RELEASE_VERSION: nightly
   DATADOG_AGENT_BUILDIMAGES: v1631023-f2ae59b
   DATADOG_AGENT_BUILDERS: v1613952-f072482
-  DATADOG_AGENT_WINBUILDIMAGES: v1716911-26588d7
+  DATADOG_AGENT_WINBUILDIMAGES: v1717289-7f131aa
 
 
 # Default before_script for all the jobs. If you create a new job and don't want this to execute
@@ -522,10 +522,11 @@ build_windows_msi_x64:
     - inv agent.omnibus-build --release-version %RELEASE_VERSION% --omnibus-s3-cache --base-dir %OMNIBUS_BASE_DIR_WIN_OMNIBUS% --skip-deps
     # copy the results from the build dir to here, because artifacts must be relative to the project directory
     - copy %OMNIBUS_BASE_DIR_WIN%\pkg\* %WIN_CI_PROJECT_DIR%\.omnibus\pkg
-  artifacts:
-    expire_in: 2 weeks
-    paths:
-      - .omnibus/pkg
+  # remove artifacts (for now) so they don't collide with the docker-generated artifacts
+  # artifacts:
+  #   expire_in: 2 weeks
+  #   paths:
+  #    - .omnibus/pkg
 
 
 ##
@@ -533,17 +534,18 @@ build_windows_msi_x64:
 ##
 .dockerbuild_windows_msi_base:
   before_script:
-    - echo "skipping default before script"
+    - mkdir .omnibus\pkg
   stage: package_build
   variables:
     WINDOWS_BUILDER: 'true'
   tags: ["runner:windows-docker"]
   script:
     - docker run --rm -m 4096M -v "$(Get-Location):c:\mnt" -e IS_AWS_CONTAINER=true -e SIGN_WINDOWS=true 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/windows_${ARCH}:$Env:DATADOG_AGENT_WINBUILDIMAGES \build-agent6.bat --release-version %RELEASE_VERSION%
+    - copy build-out\*.msi .omnibus\pkg
   artifacts:
     expire_in: 2 weeks
     paths:
-      - build-out/
+      - .omnibus/pkg
 
 dockerbuild_windows_msi_x64:
   extends: .dockerbuild_windows_msi_base
