@@ -153,6 +153,8 @@ before_script:
 
 # run tests for windows-64
 run_tests_windows-x64:
+  # temporarily allow failure for tests
+  allow_failure: false
   stage: source_test
   before_script:
     - echo "Running windows source tests"
@@ -160,7 +162,7 @@ run_tests_windows-x64:
     WINDOWS_BUILDER: 'true'
   tags: ["runner:windows-docker"]
   script:
-    - docker run --rm -m 4096M -v "$(Get-Location):c:\mnt" -e IS_AWS_CONTAINER=true -e SIGN_WINDOWS=true 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/windows_x86:$Env:DATADOG_AGENT_WINBUILDIMAGES \unittests.bat --release-version %RELEASE_VERSION% 
+    - docker run --rm -m 4096M -v "$(Get-Location):c:\mnt" -e IS_AWS_CONTAINER=true -e SIGN_WINDOWS=true 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/windows_x64:$Env:DATADOG_AGENT_WINBUILDIMAGES \unittests.bat --release-version %RELEASE_VERSION% 
   
 
 # run tests for deb-x64
