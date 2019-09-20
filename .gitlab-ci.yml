@@ -154,7 +154,7 @@ before_script:
 # run tests for windows-64
 run_tests_windows-x64:
   # temporarily allow failure for tests
-  allow_failure: false
+  allow_failure: true
   stage: source_test
   before_script:
     - echo "Running windows source tests"
