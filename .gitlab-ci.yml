@@ -61,7 +61,7 @@ variables:
   RELEASE_VERSION: nightly
   DATADOG_AGENT_BUILDIMAGES: v1631023-f2ae59b
   DATADOG_AGENT_BUILDERS: v1613952-f072482
-  DATADOG_AGENT_WINBUILDIMAGES: v1717289-7f131aa
+  DATADOG_AGENT_WINBUILDIMAGES: v1748171-a0bc272
 
 
 # Default before_script for all the jobs. If you create a new job and don't want this to execute
@@ -158,7 +158,7 @@ before_script:
     - echo "Running windows source tests"
   variables:
     WINDOWS_BUILDER: 'true'
-  tags: ["runner:windows-docker"]
+  tags: ["runner:windows-docker", "windowsversion:1809"]
   script:
     - docker run --rm -m 4096M -v "$(Get-Location):c:\mnt" -e IS_AWS_CONTAINER=true -e SIGN_WINDOWS=true 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/windows_${ARCH}:$Env:DATADOG_AGENT_WINBUILDIMAGES \unittests.bat --release-version %RELEASE_VERSION% 
 
@@ -538,7 +538,7 @@ build_windows_msi_x64:
   stage: package_build
   variables:
     WINDOWS_BUILDER: 'true'
-  tags: ["runner:windows-docker"]
+  tags: ["runner:windows-docker", "windowsversion:1809"]
   script:
     - docker run --rm -m 4096M -v "$(Get-Location):c:\mnt" -e IS_AWS_CONTAINER=true -e SIGN_WINDOWS=true 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/windows_${ARCH}:$Env:DATADOG_AGENT_WINBUILDIMAGES \build-agent6.bat --release-version %RELEASE_VERSION%
     - copy build-out\*.msi .omnibus\pkg
